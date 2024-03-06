@@ -1,3 +1,4 @@
+#tocna e samo mi se poinaku po red krsteni kaj konjot 
 from utils import *
 from uninformed_search import *
 class Chess(Problem):
