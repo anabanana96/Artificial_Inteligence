@@ -5,25 +5,14 @@ class Chess(Problem):
     def __init__(self, initial, goal=None):
         super().__init__(initial, goal)
         # GRID SIZE 8X8
+    def move_figure(self, figure, coordinates):
+        figure_x = figure[0] + coordinates[0]
+        figure_y = figure[1] + coordinates[1]
 
-    def move_horse(self, horse, coordinates):
-        horse_x = horse[0] + coordinates[0]
-        horse_y = horse[1] + coordinates[1]
-
-        if 0 <= horse_x <= 7 and 0 <= horse_y <= 7:
-            return horse_x, horse_y
+        if 0 <= figure_x <= 7 and 0 <= figure_y <= 7:
+            return figure_x, figure_y
         else:
             return None
-
-    def move_lovec(self, lovec, coordinates):
-        lovec_x = lovec[0] + coordinates[0]
-        lovec_y = lovec[1] + coordinates[1]
-
-        if 0 <= lovec_x <= 7 and 0 <= lovec_y <= 7:
-            return lovec_x, lovec_y
-        else:
-            return None
-
     def successor(self, state):
         successors = dict()
 
@@ -33,7 +22,7 @@ class Chess(Problem):
         horse_new_coordinates = [(-1, 2), (1, 2), (-2, 1), (-2, -1), (2, 1), (2, -1), (-1, -2), (1, -2)]
 
         for direction, coordinates in zip(horse_directions, horse_new_coordinates):
-            new_horse = self.move_horse(horse, coordinates)
+            new_horse = self.move_figure(horse, coordinates)
 
             if new_horse is not None and new_horse != lovec:
                 if new_horse in stars:
@@ -47,7 +36,7 @@ class Chess(Problem):
         lovec_new_coordinates = [(-1, 1), (1, 1), (-1, -1), (1, -1)]
 
         for direction, coordinates in zip(lovec_directions, lovec_new_coordinates):
-            new_lovec = self.move_lovec(lovec, coordinates)
+            new_lovec = self.move_figure(lovec, coordinates)
 
             if new_lovec is not None and new_lovec != horse:
                 if new_lovec in stars:
@@ -66,8 +55,7 @@ class Chess(Problem):
         return self.successor(state)[action]
 
     def goal_test(self, state):
-        return len(state[2]) == 0
-
+        return len(state[-1]) == 0
 
 horse = (2, 5)
 lovec = (5, 1)
