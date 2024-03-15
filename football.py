@@ -1,4 +1,3 @@
-#napisav 2 resenija od koi ednoto za publikata
 class Football(Problem):
     def __init__(self, opponents, initial, goal=None):
         super().__init__(initial,goal)
