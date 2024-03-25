@@ -13,7 +13,6 @@ variables = ["S", "E", "N", "D", "M", "O", "R", "Y"]
 
 money_problem.addVariables(variables, range(0,10))
 money_problem.addConstraint(AllDifferentConstraint())
-money_problem.addConstraint(lambda a,b: a!=0 and b!=0, ("S", "M"))
 money_problem.addConstraint(check_sum, variables)
 
 print(money_problem.getSolution())
