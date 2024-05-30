@@ -1,5 +1,3 @@
-#ALL TEST CASES ARE CORRECT ON PYCHARM BUT NOT ON COURSES?
-
 import os
 
 os.environ['OPENBLAS_NUM_THREADS'] = '1'
@@ -432,9 +430,10 @@ def calculate_percision(predictions, true_classes):
     tp_count = 0
     fp_count = 0
     for x,y in zip(predictions, true_classes):
-        if x == y and y == 1: tp_count += 1
-        if x != y and y == 1: fp_count += 1
+        if x == 1 and y == 1: tp_count += 1
+        if x == 1 and y == 0: fp_count += 1
 
+    if (tp_count + fp_count) == 0: return 0
     return tp_count / (tp_count + fp_count)
 
 def split_set(set):
