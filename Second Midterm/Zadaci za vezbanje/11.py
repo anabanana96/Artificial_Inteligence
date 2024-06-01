@@ -402,19 +402,14 @@ dataset = [
     [0.0388, 0.0324, 0.0688, 0.0898, 0.1267, 0.1515, 0.2134, 0.2613, 0.2832, 0.2718, 0.3645, 0.3934, 0.3843, 0.4677,
      0.5364, 1]]
 
-
-def split_sets(set):
-    return [row[:-1] for row in set], [row[-1] for row in set]
-def divide_sets(n, dataset):
-    train_set, test_set = [], []
-    count = 0
-    for row in dataset:
-        count += 1
-        if(count <= n): test_set.append(row)
-        else: train_set.append(row)
-
-
-    return train_set, test_set
+def define_mlp():
+    return MLPClassifier(
+            hidden_layer_sizes=(3),
+            activation='relu',
+            learning_rate_init=0.003,
+            max_iter=200,
+            random_state=0
+    )
 
 def calculate_accuracy(predictions, true_classes):
     correct = 0
@@ -423,75 +418,67 @@ def calculate_accuracy(predictions, true_classes):
 
     return correct / len(true_classes)
 
-def calculate_percision(predictions, true_classes):
-    tp_count = 0
-    fp_count = 0
+def divide_sets(x, dataset):
+    train_set, test_set = [],[]
+    count = 0
+    for row in dataset:
+        count += 1
+        if count <= x: test_set.append(row)
+        else: train_set.append(row)
 
+    return train_set, test_set
+
+def split_set(set):
+    return [row[:-1] for row in set], [row[-1] for row in set]
+
+def calculate_precision(predictions, true_classes):
+    tp,fp = 0,0
     for x,y in zip(predictions, true_classes):
-        if x == y and y == 1: tp_count += 1
-        if x != y and x == 1: fp_count += 1
-
-    return tp_count / (tp_count + fp_count)
-
+        if x == 1 and y == 1: tp += 1
+        if x == 1 and y == 0: fp += 1
+    
+    return tp / (tp + fp)
+    
+def calculate_accuracy(predictions, true_classes):
+    correct = 0
+    for x,y in zip(predictions, true_classes):
+        if x == y: correct += 1
+    
+    return correct / len(true_classes)
 
 if __name__ == '__main__':
-    n = int(input())
-    type = input()
+    X = int(input())
+    model = input()
     col_index = int(input())
 
-    train_set, test_set = divide_sets(n, dataset)
+    clf1, clf2 = None,None
 
-    train_x, train_y = split_sets(train_set)
-    test_x, test_y = split_sets(test_set)
+    if model == 'NB': clf1, clf2 = GaussianNB(), GaussianNB()
+    elif model == 'DT': clf1, clf2 = DecisionTreeClassifier(random_state=0), DecisionTreeClassifier(random_state=0)
+    elif model == 'NN': clf1, clf2 = define_mlp(), define_mlp()
+
+    train_set, test_set = divide_sets(X, dataset)
+    train_x, train_y = split_set(train_set)
+    test_x, test_y = split_set(test_set)
 
     train_x_2 = [[row[i] for i in range(len(row)) if i != col_index] for row in train_x]
     test_x_2 = [[row[i] for i in range(len(row)) if i != col_index] for row in test_x]
 
-    classifier = None
-    classifier2 = None
+    clf1.fit(train_x,train_y)
+    clf2.fit(train_x_2,train_y)
 
-    if(type == 'DT'):
-        classifier = DecisionTreeClassifier(random_state=0)
-        classifier2 = DecisionTreeClassifier(random_state=0)
+    accuracy_clf1 = calculate_accuracy(clf1.predict(test_x),test_y)
+    accuracy_clf2 = calculate_accuracy(clf2.predict(test_x_2),test_y)
 
-    if(type == 'NB'):
-        classifier = GaussianNB()
-        classifier2 = GaussianNB()
 
-    if(type == 'NN'):
-        classifier = MLPClassifier(
-            hidden_layer_sizes=(3),
-            activation='relu',
-            learning_rate_init=0.003,
-            max_iter=200,
-            random_state=0
-        )
-        classifier2 = MLPClassifier(
-            hidden_layer_sizes=(3),
-            activation='relu',
-            learning_rate_init=0.003,
-            max_iter=200,
-            random_state=0
-        )
-
-    classifier.fit(train_x, train_y)
-    classifier2.fit(train_x_2, train_y)
-
-    accuracy_base = calculate_accuracy(classifier.predict(test_x), test_y)
-    accuracy_new = calculate_accuracy(classifier2.predict(test_x_2), test_y)
-
-    percision = 0
-
-    if(accuracy_base > accuracy_new):
-        percision = calculate_percision(classifier.predict(test_x), test_y)
+    if accuracy_clf1 > accuracy_clf2:
         print("Klasifiktorot so site koloni ima pogolema tochnost")
+        print(calculate_precision(clf1.predict(test_x),test_y))
 
-    elif(accuracy_base < accuracy_new):
-        percision = calculate_percision(classifier2.predict(test_x_2), test_y)
+    elif accuracy_clf2 > accuracy_clf1:
         print("Klasifiktorot so edna kolona pomalku ima pogolema tochnost")
+        print(calculate_precision(clf2.predict(test_x),test_y))
 
     else:
-        percision = calculate_percision(classifier.predict(test_x), test_y)
         print("Klasifikatorite imaat ista tochnost")
-
-    print(percision)
+        print(calculate_precision(clf1.predict(test_x),test_y))
